@@ -1,60 +1,55 @@
-//taken directly from assignment 26
-
+//modified from activity 26
 const typeDefs = `
   type User {
-    _id: ID
-    username: String
-    email: String
-    password: String
-    thoughts: [Thought]!
-  }
-
-  type Thought {
-    _id: ID
-    thoughtText: String
-    thoughtAuthor: String
-    createdAt: String
-    comments: [Comment]!
-  }
-
-  type Comment {
-    _id: ID
-    commentText: String
-    createdAt: String
-  }
-
-  input ThoughtInput {
-    thoughtText: String!
-    thoughtAuthor: String!
-  }
-
-  input UserInput {
+    _id: ID!
     username: String!
     email: String!
-    password: String!
+    bookCount: Int
+    savedBooks:[Book]
   }
-  
+
+  type Book {
+    bookId: ID!
+    authors: [String!]!
+    description: String!
+    title: String!
+    image: String!
+    link: String
+  }
+
   type Auth {
-    token: ID!
+    token: String!
     user: User
   }
 
   type Query {
-    users: [User]
-    user(username: String!): User
-    thoughts: [Thought]!
-    thought(thoughtId: ID!): Thought
+  # Fetch the current authenticated user's information
     me: User
   }
-
   type Mutation {
-    addUser(input: UserInput!): Auth
+  # Authenticate user with email and password
     login(email: String!, password: String!): Auth
-    addThought(input: ThoughtInput!): Thought
-    addComment(thoughtId: ID!, commentText: String!): Thought
-    removeThought(thoughtId: ID!): Thought
-    removeComment(thoughtId: ID!, commentId: ID!): Thought
+
+  # Register a new user with username, email, and password
+    addUser(username: String!, email: String!, password: String!): Auth
+
+  # Save a book to the user's list of saved books
+    saveBook(bookId: ID!, authors: [String]!, description: String!, title: String!, image: String!, link: String): User
+
+  # Remove a book from the user's saved books
+    removeBook(bookId: ID!): User
   }
+
+
+# Define Input Types for mutation arguments
+  input BookInput {
+    bookId: ID!
+    authors: [String]!
+    description: String!
+    title: String!
+    image: String!
+    link: String
+}
 `;
 
 export default typeDefs;
