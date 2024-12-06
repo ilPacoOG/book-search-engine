@@ -1,11 +1,14 @@
-//modified from activity 26
-const typeDefs = `
+//taken from module 18, activity 26 and modified
+
+import { gql } from 'graphql-tag';
+
+const typeDefs = gql`
   type User {
     _id: ID!
     username: String!
     email: String!
     bookCount: Int
-    savedBooks:[Book]
+    savedBooks: [Book]
   }
 
   type Book {
@@ -23,33 +26,27 @@ const typeDefs = `
   }
 
   type Query {
-  # Fetch the current authenticated user's information
+    # Fetch all users
+    users: [User]
+    # Fetch a user by username
+    user(username: String!): User
+    # Fetch the current authenticated user's information
     me: User
   }
+
   type Mutation {
-  # Authenticate user with email and password
+    # Authenticate user with email and password
     login(email: String!, password: String!): Auth
 
-  # Register a new user with username, email, and password
+    # Register a new user with username, email, and password
     addUser(username: String!, email: String!, password: String!): Auth
 
-  # Save a book to the user's list of saved books
+    # Save a book to the user's list of saved books
     saveBook(bookId: ID!, authors: [String]!, description: String!, title: String!, image: String!, link: String): User
 
-  # Remove a book from the user's saved books
+    # Remove a book from the user's list of saved books
     removeBook(bookId: ID!): User
   }
-
-
-# Define Input Types for mutation arguments
-  input BookInput {
-    bookId: ID!
-    authors: [String]!
-    description: String!
-    title: String!
-    image: String!
-    link: String
-}
 `;
 
 export default typeDefs;
