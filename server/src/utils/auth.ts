@@ -3,6 +3,12 @@ import { GraphQLError } from 'graphql';
 import dotenv from 'dotenv';
 dotenv.config();
 
+export interface JwtPayload {
+  _id: unknown;
+  username: string;
+  email: string;
+}
+
 export const authenticateToken = ({ req }: any) => {
   let token = req.body.token || req.query.token || req.headers.authorization;
 
@@ -11,17 +17,19 @@ export const authenticateToken = ({ req }: any) => {
   }
 
   if (!token) {
-    return req;
+    console.log('No token provided');
+    return { user: null }; // Return null user if no token
   }
 
   try {
     const { data }: any = jwt.verify(token, process.env.JWT_SECRET_KEY || '', { maxAge: '2hr' });
-    req.user = data;
+    console.log('Decoded Token:', data); // Log decoded token for debugging
+    return { user: data as JwtPayload }; // Return user to the context
   } catch (err) {
-    console.log('Invalid token');
+    const error = err as Error; // Explicitly cast to Error type
+    console.log('Invalid token:', error.message);
+    return { user: null };
   }
-
-  return req;
 };
 
 export const signToken = (username: string, email: string, _id: unknown) => {
@@ -33,7 +41,7 @@ export const signToken = (username: string, email: string, _id: unknown) => {
 
 export class AuthenticationError extends GraphQLError {
   constructor(message: string) {
-    super(message, undefined, undefined, undefined, ['UNAUTHENTICATED']);
+    super(message, { extensions: { code: 'UNAUTHENTICATED' } });
     Object.defineProperty(this, 'name', { value: 'AuthenticationError' });
   }
 };

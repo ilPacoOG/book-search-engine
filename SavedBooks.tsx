@@ -10,8 +10,7 @@ const SavedBooks = () => {
   const { loading, data } = useQuery(GET_ME);
   const [removeBook] = useMutation(REMOVE_BOOK);
 
-  const userData = data?.me || { savedBooks: [] };
-
+  const userData = data?.me || {};
 
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
   const handleDeleteBook = async (bookId: string) => {
@@ -50,17 +49,15 @@ const SavedBooks = () => {
         </Container>
       </div>
       <Container>
-      <h2 className='pt-5'>
-        {userData.savedBooks?.length
-          ? `Viewing ${userData.savedBooks.length} saved ${
-              userData.savedBooks.length === 1 ? 'book' : 'books'
-          }:`
-          : 'You have no saved books!'}
-      </h2>
-
+        <h2 className='pt-5'>
+          {userData.savedBooks.length
+            ? `Viewing ${userData.savedBooks.length} saved ${
+                userData.savedBooks.length === 1 ? 'book' : 'books'
+              }:`
+            : 'You have no saved books!'}
+        </h2>
         <Row>
-        {userData.savedBooks?.map(
-          (book: { bookId: string; image?: string; title: string; authors: string[]; description: string }) => {
+          {userData.savedBooks.map((book: { bookId: string; image?: string; title: string; authors: string[]; description: string }) => {
             return (
               <Col md='4' key={book.bookId}>
                 <Card border='dark'>
@@ -85,9 +82,7 @@ const SavedBooks = () => {
                 </Card>
               </Col>
             );
-          }
-        )}
-
+          })}
         </Row>
       </Container>
     </>

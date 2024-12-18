@@ -57,7 +57,9 @@ const SearchBooks = () => {
         title: book.volumeInfo.title,
         description: book.volumeInfo.description,
         image: book.volumeInfo.imageLinks?.thumbnail || '',
+        link: (book.volumeInfo as any).infoLink || '', // Use type assertion if needed
       }));
+      
 
       setSearchedBooks(bookData);
       setSearchInput('');
@@ -68,25 +70,36 @@ const SearchBooks = () => {
 
   // create function to handle saving a book to our database
   const handleSaveBook = async (bookId: string) => {
-    // find the book in `searchedBooks` state by the matching id
+    // Find the book in `searchedBooks` state by the matching id
     const bookToSave: Book = searchedBooks.find((book) => book.bookId === bookId)!;
 
-    // get token
+    // Get token
     const token = Auth.loggedIn() ? Auth.getToken() : null;
 
     if (!token) {
+      console.error('No token found, cannot save book.');
       return false;
     }
 
     try {
       await saveBook({
-        variables: { ...bookToSave },
+        variables: {
+          bookData: {
+            bookId: bookToSave.bookId,
+            authors: bookToSave.authors,
+            description: bookToSave.description,
+            title: bookToSave.title,
+            image: bookToSave.image,
+            link: bookToSave.link,
+          },
+        },
       });
 
-      // if book successfully saves to user's account, save book id to state
+      // If book successfully saves to user's account, save book id to state
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);
+      console.log(`Book "${bookToSave.title}" saved successfully!`);
     } catch (err) {
-      console.error(err);
+      console.error('Error saving book:', err);
     }
   };
 
@@ -138,12 +151,18 @@ const SearchBooks = () => {
                     {Auth.loggedIn() && (
                       <Button
                         disabled={savedBookIds?.some((savedBookId: string) => savedBookId === book.bookId)}
-                        className='btn-block btn-info'
-                        onClick={() => handleSaveBook(book.bookId)}>
+                        className="btn-block btn-info"
+                        onClick={() => {
+                          console.log('Saving book with ID:', book.bookId);
+                          handleSaveBook(book.bookId);
+                        }}
+                      >
                         {savedBookIds?.some((savedBookId: string) => savedBookId === book.bookId)
-                          ? 'This book has already been saved!'
+                          ? 'This book has been saved!'
                           : 'Save this Book!'}
                       </Button>
+
+
                     )}
                   </Card.Body>
                 </Card>
